@@ -6,4 +6,4 @@ This repository contains the specification of Food.
 ## About Downloading
 If you wish to download a version of the specification, please download the whole folder, as it is split across multiple files.
 
-*The Official Food Specification is licensed under the CC BY 4.0 license.*
+*The Official Food Specification is licensed under the MIT license.*
