@@ -123,8 +123,7 @@ Here is a list of keywords reserved by the specification:
 | char | class | const |
 | continue | default | do |
 | double | else | end $^±$ |
-| enum | extern | false |
-| extern | false | float |
+| enum | extern | false | float |
 | for | function | goto |
 | half | if | int |
 | lengthof | long | nameof |
