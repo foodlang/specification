@@ -123,7 +123,7 @@ Here is a list of keywords reserved by the specification:
 | char | class | const |
 | continue | default | do |
 | double | else | end $^±$ |
-| enum | extern | false | float |
+| enum | extern | false |
 | for | function | goto |
 | half | if | int |
 | lengthof | long | nameof |
@@ -140,9 +140,9 @@ Here is a list of keywords reserved by the specification:
 | i32/I32 | u32/U32 | f32/F32 |
 | i64/I64 | u64/U64 | f64/F64 |
 | module | interface | implements |
-| assert | sponge | typeof $^±$ |
+| assert | sponge |  float |
 | namespace $^±$ | var $^±$ | try $^±$ |
-|catch $^±$ | throw $^±$ |
+|catch $^±$ | throw $^±$ | typeof $^±$ |
 
 $^±$: The keyword is not in use in the current version of the standard, but it reserved for later use.
 
