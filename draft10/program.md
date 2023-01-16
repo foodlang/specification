@@ -6,12 +6,13 @@ Food does things differently than most C-like programming languages. Instead of 
  - [Module & Module Interfaces](#module)
  - [Labels](#labels)
  - [External Linking](#external-linking)
+ - [Public](#public)
 
 
 ## Project
 Projects are a group of modules, or module interfaces that forms a library or a program. They are built by linking together many modules. It also shares a common namespace. A good example is the library `food`, which is the standard Food library. It is a project composed of many modules that all share the `food` base namespace.
 
-For linking projects and other binaries (such as DLLs, or static libraries), see [External Linking](#external-linking). To see how to build projects, refer to your compiler.
+For linking projects and other binaries (such as DLLs, or static libraries), see [External Linking](#external-linking). To see how to build projects, refer yourself to your compiler.
 
 ### Using a project
 In code, for every project you're using, you must add a `using` directive. Example:
@@ -90,4 +91,6 @@ Sometimes, you will need to use an external library written in another language 
 ```cpp
 extern decl;
 ```
-`decl` refers to any kind of declaration. Note that you cannot assign any value to an external variable, nor can you assign any body to an external function. The name of the function will be the name searched. Note that specifying the `public` member will expose it.
+`decl` refers to any kind of declaration. Note that you cannot assign any value to an external variable, nor can you assign any body to an external function. The name of the function will be the name searched.
+## Public
+The `public` qualifier exposes a symbol to external projects. This is useful if you are building an API for your program/library.
