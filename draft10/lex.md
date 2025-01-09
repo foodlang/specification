@@ -38,36 +38,36 @@ A literal value, or primary value, is a value that is *hardcoded* into source co
 ### Integer Literals
 An Integer literal represents an integer. They can be written in 4 different bases, Decimal, [Binary](https://en.wikipedia.org/wiki/Binary_number), [Octal](https://en.wikipedia.org/wiki/Octal) and [Hexadecimal](https://en.wikipedia.org/wiki/Hexadecimal). Syntax Examples:
 ```c
-int a = 15;      // Decimal (AKA base 10). Digits range from 0 through 10
-int b = 0b1111;  // Binary (AKA base 2). Either 0s or 1s, has a 0b prefix.
-int c = 017;     // Octal (AKA base 8). Digits range from 0 through 7, has a 0 prefix.
-int d = 0xF;     // Hexadecimal (AKA base 16). Digits range from 0 to 9, (A through F for 10-15, case does not matter.)
+a := 15;      // Decimal (AKA base 10). Digits range from 0 through 10
+b := 0b1111_i;  // Binary (AKA base 2). Either 0s or 1s, has a 0b prefix.
+c := 017_u8;     // Octal (AKA base 8). Digits range from 0 through 7, has a 0 prefix.
+d := 0xF;     // Hexadecimal (AKA base 16). Digits range from 0 to 9, (A through F for 10-15, case does not matter.)
 ```
-As opposed to other popular languages, food lacks any size suffixes. Instead, it is recommended to cast the integers to the appropriate size. By default, an integer literal is of type `int`/`i32`, but if the value cannot fit into a 32-bit integer, a 64-bit integer will be used (`long`/`i64`.) If a value goes beyond $2^{63}-1$, an unsigned long (`ulong`/`u64`) will be used.
+Food supports a range of type suffixes. Simply add an underscore followed by a type name to specify the type of the literal. You can also specify the general data class without specifying a size by leaving the `i`, `u` or `f` trailing.
 
 ### Floating-point Literals
 A Floating-point literal represents a floating-point value. These conform to the standard [IEEE 754](https://en.wikipedia.org/wiki/IEEE_754). They consist of an integer, followed by a decimal separator (`.`), then a decimal part. An exponent can be specified. Examples:
 ```c
-float one_half = 0.5; // classic way
-float exponents = 1.5e3; // exponents
-float exponents_negative = 1.5e-3; // exponents can be negative.
+one_half := 0.5
+one_tenth := 1e-1
+one_hundred := 1e2
 ```
 The exponents use a base 10 ($n * 10^e$, $e$ is the given exponent and $n$ the value.)
 
 ### Character Literals
 Character literals are used to represent characters (can represent up to 8 characters). The syntax is as follows:
 ```c
-char c = 'A'; // Character literal consisting of the letter A
+c := 'A'; // Character literal consisting of the letter A
 ```
 One important note, when using multiple characters, they are stored using this pattern: `'Abcd'` will be stored as `'d' << 24 | 'c' << 16 | 'b' << 8 | 'A'`. In other terms, the characters are stored in reverse order. They accept [Escape Sequences](#escape-sequences).
 
 ### String Literals
 String literals are used to represent a string of characters. They are similar to character literals, except they don't have limits. String literals go as follow:
 ```c
-string hello = "Hello, World!";
+hello := "Hello, World!";
 ```
 Here, the text stored will be **Hello, World!**. String literals accept [Escape Sequences](#escape-sequences).  
-**Warning**: As opposed to many C-like languages, the `string` type is a *Pascal String.* C strings can be created by simply casting the string literal to a char pointer (e.g. `char *` or `const char *`). Type Qualifiers are ignored. The cast must be done on the literal value directly, and not on a variable for example (so `(char *)"Hello, World!` or `"Hello, World!" => char *` only.)
+String constants do not have to be stored in mutable memory. If you wish to modify one, you should copy it into a buffer and work with that.
 
 ### Escape Sequences
 Escape Sequences are a specific linear set of characters in a character or string literal. Here's a complete list of all of the escape sequences Food supports:  
@@ -104,7 +104,7 @@ A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
 ```
 Note for digits: You cannot start the identifier's name with digits, as it would be confused with an integer literal.
 
-**Warning**: A user-declared identifier cannot start with two underscores or an underscore followed by an uppercase. These are reserved for the implementation.
+**Warning**: A user-declared identifier cannot start with two underscores or an underscore followed by an uppercase. These are reserved for the implementation or extensions.
 
 Food is case sensitive, meaning that `my_variable` and `my_Variable` are totally different.
 
@@ -113,38 +113,29 @@ Keywords are very similar to identifiers, except they cannot contain digits. The
  - Starts with two underscores (e.g. `__asm`)
  - Starts with an underscore followed by an uppercase (e.g. `_Packed`)
 
-*Note that the examples given up are fictional, but may be used by an implementation for different purposes.*
-
 Here is a list of keywords reserved by the specification:
 | | | |
 |:-:|:-:|:-:|
-| alignof | atomic | break |
-| bool | byte | case |
-| char | class | const |
-| continue | default | do |
-| double | else | end $^±$ |
-| enum | extern | false |
-| for | function | goto |
-| half | if | int |
-| lengthof | long | nameof |
-| new | null | public |
-| record | restrict | return |
-| sbyte | short | size |
-| sizeof | start $^±$ | static |
-| string | struct | switch |
-| true | uchar | union |
-| uint | ulong | ushort |
-| using | void | volatile |
-| while | i8/I8 | u8/U8 |
-| i16/I16 | u16/U16 | f16/F16 |
-| i32/I32 | u32/U32 | f32/F32 |
-| i64/I64 | u64/U64 | f64/F64 |
-| module | interface | implements |
-| assert | sponge |  float |
-| namespace $^±$ | var $^±$ | try $^±$ |
-|catch $^±$ | throw $^±$ | typeof $^±$ |
+| new | default | true |
+| false | null | sizeof |
+| lengthof | nameof | typeof |
+| cast | struct | union |
+| enum | class | void |
+| bool | i/I8 | u/U8 |
+| i/I16 | u/U16 | i/I32 |
+| u/U32 | i/I64 | u/U64 |
+| isz | usz | fmax |
+| let | func | varying |
+| in | out | internal |
+| const | atomic | shared |
+| import | if | else |
+| while | do | switch |
+| case | break | continue |
+| return | for | goto |
+| assert | sponge | finally |
+| asm\* |
 
-$^±$: The keyword is not in use in the current version of the standard, but it reserved for later use.
+**\*: the following keyword and associated feature is not necessarily supported by the implementation.**
 
 ## Operators
 Operators, or punctuators are special symbols or series of symbols that are used to give meaning to a statement, expression, type, etc. They can separate identifiers and numbers without the need of a space.

@@ -18,13 +18,7 @@ User-defined types:
  - [Type Aliases](#type-aliases)
 
 ## Type Qualifiers
-Type Qualifiers change a type's meaning. Here is a list of all type qualifiers with their purpose:
-| Keyword | Purpose |
-|:-------:|:--------|
-| `const` | Denotes a value that does not change after its original assignment.
-| `volatile` | Denotes a value that may change between its different accesses, even if not changed by the user. |
-| `restrict` | Denotes a pointer that for its lifetime, its pointed value will never be pointed by any other pointer. |
-| `atomic` | Denotes a value that it must be locked before writing to it, as it can be accessed by multiple threads. |
+Food does not have true type qualifiers, however it does have declaration specifiers.
 
 ## Primitive Types
 Primitive Types are the most basic types avaiable in the Food programming language. Here is a list of them:
@@ -32,8 +26,8 @@ Primitive Types are the most basic types avaiable in the Food programming langua
 |:---------:|:----------:|-------------:|:---------:|:-----------:|:---------|
 | (none)    | `void`     | 0            | N/A       | (none)      | See below. |
 | (none)    | `bool`     | 1            | Yes       | (none)      | Boolean. |
-| `u8`/`U8` | `byte`     | 1            | Yes       | `uchar`     | Integer. |
-| `i8`/`I8` | `sbyte`    | 1            | No        | `char`      | Integer. |
+| `u8`/`U8` | `byte`     | 1            | Yes       | (none)      | Integer. |
+| `i8`/`I8` | `sbyte`    | 1            | No        | (none)      | Integer and character. |
 |`i16`/`I16`| `short`    | 2            | No        | (none)      | Integer. |
 |`u16`/`U16`| `ushort`   | 2            | Yes       | (none)      | Integer. |
 |`f16`/`F16`| `half`     | 2            | N/A       | (none)      | Float.   |
@@ -43,8 +37,8 @@ Primitive Types are the most basic types avaiable in the Food programming langua
 |`i64`/`I64`| `long`     | 8            | No        | (none)      | Integer. |
 |`u64`/`U64`| `ulong`    | 8            | Yes       | (none)      | Integer. |
 |`f64`/`F64`| `double`   | 8            | N/A       | (none)      | Float.   |
-| (none)    | `size`     | Largest Integer| Yes     | (none)      | Size.    |
-| (none)    | `string`   | Minimum 4    | N/A       | (none)      | String.  |
+| (none)    | `isz`      | Largest Integer| No      | (none)      | Largest register integer. |
+| (none)    | `usz`      | Largest Integer| Yes     | (none)      | Largest register integer. |
 
 Booleans can represent either `true` or `false`, respectively 1 and 0. On an important note, a boolean is considered `true` if it is not zero. Comparing to
 `true` will actually check if the boolean is not `false` (0).
@@ -53,14 +47,14 @@ Integers can be signed or unsigned, meaning that they can either accept or not a
 
 Floating-point values must conform to the standard [IEEE 754](https://en.wikipedia.org/wiki/IEEE_754) to be valid.
 
-The `size` type refers to the biggest unsigned integer that the implementation can store natively, typically refers to the biggest value that can be stored in a generic register.
+The types `isz` and `usz` refers to the biggest unsigned integer that the implementation can store natively, typically refers to the biggest value that can be stored in a generic register.
 
-The `string` type is a Pascal String that can hold up to $2^{32}-1$ 8-bit characters. It is heavily recommended to pass large strings as pointers/references, as copying a string (or passing it around) will copy all of its data.
+Strings are stored as character (`i8` pointers).
 
 The `void` type is an incomplete type, and cannot store a value. It is used to denote functions that return nothing.
 
 ## Pointer Types
-Pointers are unsigned integers that will have the same size as the type `size`. They **point to data**, meaning the value stored in a pointer is an address to data. Some important concepts must be understood about pointers:
+Pointers are unsigned integers that will have the same size as the types `isz` and `usz`. They **point to data**, meaning the value stored in a pointer is an address to data. Some important concepts must be understood about pointers:
  - A pointer that its base type is `void` is an **any pointer**, and can point to any kind of data and be casted to any other type of pointers. It cannot be dereferenced without cast.
  - if a pointer's value is zero, or `null` (`null` is a pointer constant that points to nothing), it is considered a **null pointer**, or a pointer that points to no data. Derefercing is undefined behaviour.
  - Adding a value to a pointer, or incrementing a pointer will increment the address stored by **element size times the value.** **Element size** refers to the size of a value pointed by this pointer. *Note: For any pointers, increments of one will be used, as `void` has no size, because it is an incomplete type.* Same goes for decrementing.
@@ -70,27 +64,23 @@ The syntax of a pointer goes as follows:
 ```c
 type*
 ```
-*Note: The star can be anywhere. As long as there's a star, it is a pointer.*
 
 ### Computed Goto
 Because *any pointers* can point to any kind of data, they can point to code. This means that computed goto is possible. Refer to the [goto statement](statements.md#goto-statement) for more information.
 
 ## Reference Types
-References are a variant of pointers, but have substantial differences. As opposed to a pointer, references **cannot**:
- - A reference is always constant, once it is assigned it can never change.
- - Adding or incrementing a pointer is also forbidden.
- - You cannot cast a reference to **any** other type. Exception for casting references to a pointer of the same base type, for example `int&` to `int*`.
- - **Any references**, or **void&** does not make any sense, and so, is forbidden.
- - References cannot be assigned `null`.
- - References cannot be the base of another type.
+Reference types are a safer variant of pointers designed to replace the usage of out/in/ref pointers to reference parameters or return parameters. There are three kinds:
+ - `in`: the value pointed by the reference must not be changed. It must be initialized before passing to the function.
+ - `varying`: the value pointed by the reference may be changed. It must be initialized before passing to the function.
+ - `out`: the value pointed by the reference must be reassigned by the function. It does not have to be initialized before passing to the function.
 
-The syntax of a reference goes as follows:
+To pass one such reference to a function, specify the keyword before the Lvalue expression.
+Example:
 ```cpp
-type&
+add_vec3(varying acc, in other);
 ```
-*Note: As with pointers, the ampersand (And symbol) does not need to be a precise location.*
 
-As opposed to C++'s references, Food references use the same syntax as pointers (`*` for dereference, `&` to make a reference), as they are a variant of pointers.
+As opposed to pointers, dereferencing is implicit when working with a reference. You can always take the address of a reference. You can take an address to get the actual pointer. Note that it then loses its safety semantics.
 
 ## Function Callbacks
 Function Callbacks, or function pointers, are a very special type of pointer that points to a function. They can:
@@ -104,7 +94,7 @@ However, they cannot:
 
 The syntax is:
 ```c
-function return_type(params)
+return_type(params)
 ```
 
 You can call function callbacks with the same syntax as you would call any other function.
@@ -116,16 +106,16 @@ Typically, arrays are stored on stack but can also be stored in another memory s
 
 The syntax for an array goes as follows:
 ```c
-type[array_element_count] array;
+array: type[array_element_count] = [];
 ```
-If an array has a variable length, `sizeof()` will return the size of a pointer. If it doesn't, then it will be $cs$, where $c$ means the number of elements it can hold (capacity), and $s$ the size of an element.
+If an array has a variable length, `sizeof()` will return the size of a pointer. If it doesn't, then it will be $cs$, where $c$ means the number of elements it can hold (capacity), and $s$ the size of an element. In the case of a variable length array (VLA), it will merely be a pointer with array semantics.
 
 ## Enumerated Types
-Enumerated Types, or Enums are a kind of user-defined that consists of a single value that represents can be set to a set of named constants. Enumerated types use an underlying type, which is most often `int`. Enums can also be directly assigned an integer value. A duplicate enum constant is not allowed.
+Enumerated Types, or Enums are a kind of user-defined that consists of a single value that represents can be set to a set of named constants. Enumerated types use an underlying type, which is most often `i32`. Enums can also be directly assigned an integer value. A duplicate enum constant is not allowed.
 
 The syntax to declare an enum goes as follows:
 ```cs
-enum fruits
+enum(i8) // the (i8) sets the internal type. it may be omitted to specify i32.
 {
 	apple, // By default, enums start at zero. However, this can be changed.
 	banana, // This will be equal to 1.
@@ -139,11 +129,16 @@ enum fruits
 
 Then, you can use the enum has if it was a type:
 ```cs
-fruits my_fruit_kind = fruits.apple; // my_fruit_kind = 0
-my_fruit_kind = fruits.lemon; // my_fruit_kind = 14
+class fruits :: enum(i8) {
+	apple, banana, orange, grape, peach, grapefruit, lemon
+};
+
+// ...
+my_apple := fruits.apple;
+my_fruit: fruits = fruits.peach;
 ```
 
-## Structure and Records
+## Structures
 A structure is a linear group of member values. Two members cannot have the same name. Structures are user-defined types.
 
 A record is a special variant of a structure, where its members cannot be modified. If you want to change one of its members, you have to change it fully.
